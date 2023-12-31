@@ -2,6 +2,7 @@
 <html lang="es">
     <head>
         <title>Detección de movimiento</title>
+        <!-- Etiquea estilo par dar propiedades a los elementos-->
         <style>
             html,body{background:black;}
             video{display:none;}
@@ -15,17 +16,21 @@
         <canvas id="lienzo2" width="640px" height="480px"></canvas>
         <video id="video" autoplay></video>
         
+        <!-- Contenedor de widgets-->
         <div id="controls">
+            <!--Control opacidad-->
             <label for="opacity">Opacidad del Resaltado:</label>
             <input type="range" id="opacity" min="0.1" max="1" step="0.1" value="0.4">
             <br>
+            <!--Boton pausa -->
             <button id="botonInicioPausa" onclick="toggleDeteccion()">Pausar/Reanudar</button>
             <br>
+            <!--Barra tamaño cuadrados-->
             <label for="Tamaño">Tamaño de los Cuadrados:</label>
-            <input type="range" id="tamanoCuadraditos" min="5" max="50" step="5" value="20">
+            <input type="range" id="tamanoCuadraditos" min="4" max="64" step="4" value="16">
         </div>
         <script>
-            // Declaro las variables iniciales
+            //Declaro las variables iniciales
             const claridad = document.getElementById('opacity');
                 
             const video = document.getElementById("video");
@@ -45,8 +50,6 @@
             var cuadrosy = []
             var atencionx = []
             var atenciony = []
-            // el paso es cada cuantos pixeles voy a realizar una comparación
-            const paso = 8;
             // Creo un contenedor para los pixeles del fotograma anterior
             var pixelesviejos = [];
             // Creo un contenedor para los pixeles del ultimo fotograma
@@ -54,12 +57,12 @@
             var contador = 0;
             
             
-            //Claridad 
+            // Actualizar la opacidad del resaltado cuando el usuario ajusta el control 
             claridad.addEventListener('input', function() {
-            // Actualizar la opacidad del resaltado cuando el usuario ajusta el control
-            contexto2.globalAlpha = parseFloat(claridad.value);
+                contexto2.globalAlpha = parseFloat(claridad.value);
             });
             
+            // Funcion para pausar o reanudar el video con actualizacion de boton
             function toggleDeteccion() {
                 deteccionActiva = !deteccionActiva;  
 
@@ -74,10 +77,12 @@
                     botonInicioPausa.textContent = 'Iniciar';
                 }
             }
+            
             tamanoCuadraditosInput.addEventListener('input', function () {
                 tamanoCuadraditos = parseInt(tamanoCuadraditosInput.value);
             
             });
+            
             navigator.mediaDevices.getUserMedia({video:true})
                 .then(function(flujo){
                     video.srcObject = flujo;
@@ -93,19 +98,14 @@
                 contexto2.fillStyle = "rgba(255,255,255,0.01)"
                 contexto2.fillRect(0,0,640,480) 
                 // En el canvas pego el video
-                contexto.drawImage(
-                    video,
-                    0,
-                    0,
-                    lienzo.width,
-                    lienzo.height);
+                contexto.drawImage(video,0,0,lienzo.width,lienzo.height);
                 // A los pixeles viejos les pongo el valor de los anteriores
                 pixelesviejos = pixelesnuevos
                 // Reinicio la info de los pixeles nuevos
                 pixelesnuevos = [];
                 // Quiero repasar la imagen en X y en Y
-                for(let x = 0;x<640;x+=paso){
-                    for(let y = 0;y<480;y+=paso){
+                for(let x = 0;x<640;x+=tamanoCuadraditos){
+                    for(let y = 0;y<480;y+=tamanoCuadraditos){
                         // Tomo el valor del pixel
                         let pixel = contexto.getImageData(x,y,1,1);
                         // Y en los pixeles nuevos, pongo la info
@@ -116,7 +116,7 @@
                         })
                     }
                 }
-                // Si estoy en la segunda iteración
+                
                 if(contador > 0){
                     // Repaso el array y tomo los valores nuevos y antiguos
                     for(let i = 0;i<pixelesnuevos.length;i++){
@@ -132,7 +132,7 @@
                         let diferenciaazul = Math.abs(azulnuevo-azulviejo)
                         let promedio = (diferenciarojo+diferenciaverde+diferenciaazul)/3
                         // Si la diferencia es grande, es que hay movimiento
-                        if(promedio > 20){
+                        if(promedio > 10){
                             // Si hay movimiento, dibuja un cuadro
                             contexto2.strokeRect(
                                 pixelesnuevos[i].x,
@@ -153,6 +153,7 @@
                         }
                     }
                 }
+                
                 // Búsqueda de máximos en X
                 let maxx = 0
                 let maxcuentax = 0;
@@ -164,6 +165,7 @@
                         maxx = index
                     }
                 });
+                
                 // Búsqueda de máximos en X
                 cuadrosy.forEach(function(number, index) {
                     if(number > maxcuentay){
@@ -171,6 +173,7 @@
                         maxy = index
                     }
                 });
+                
                 if(maxx != 0){
                     atencionx.push(maxx)
                     atenciony.push(maxy)
@@ -187,8 +190,6 @@
                     sumax /= 10
                     sumay /= 10
                     
-                    
-                   
                     // Linea en vertical
                     contexto2.beginPath();
                     contexto2.moveTo(maxx,0)
