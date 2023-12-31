@@ -19,23 +19,19 @@
             <label for="opacity">Opacidad del Resaltado:</label>
             <input type="range" id="opacity" min="0.1" max="1" step="0.1" value="0.4">
             <br>
-            <label for="deteccion">Tipo de Detección:</label>
-            <select id="deteccion">
-                <option value="nada">Nada</option>
-                <option value="cuadrados">Cuadrados</option>
-                <option value="circulos">Círculos</option>
-            </select>
+            <button id="botonInicioPausa" onclick="toggleDeteccion()">Pausar/Reanudar</button>
         </div>
         <script>
             // Declaro las variables iniciales
             const claridad = document.getElementById('opacity');
-            const tipoDeteccion = document.getElementById('deteccion');
-            
+                
             const video = document.getElementById("video");
             const lienzo = document.getElementById("lienzo");
             const lienzo2 = document.getElementById("lienzo2");
             const contexto = lienzo.getContext("2d");
             const contexto2 = lienzo2.getContext("2d");
+            const botonInicioPausa = document.getElementById('botonInicioPausa');
+            let deteccionActiva = false;  // Variable para controlar el estado de la detección
             contexto2.fillStyle = "rgba(255,255,255,0.01)"
             var cuadrosx = []
             var cuadrosy = []
@@ -56,9 +52,20 @@
             contexto2.globalAlpha = parseFloat(claridad.value);
             });
             
-             tipoDeteccion.addEventListener('change', function() {
-            
-             });
+            function toggleDeteccion() {
+                deteccionActiva = !deteccionActiva;  // Invierte el estado al hacer clic
+
+                if (deteccionActiva) {
+                    // Inicia la detección
+                    video.play();
+                    videoALienzo();
+                    botonInicioPausa.textContent = 'Pausar';
+                } else {
+                    // Pausa la detección
+                    video.pause();
+                    botonInicioPausa.textContent = 'Iniciar';
+                }
+            }
             
             navigator.mediaDevices.getUserMedia({video:true})
                 .then(function(flujo){
