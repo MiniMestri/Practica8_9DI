@@ -20,6 +20,9 @@
             <input type="range" id="opacity" min="0.1" max="1" step="0.1" value="0.4">
             <br>
             <button id="botonInicioPausa" onclick="toggleDeteccion()">Pausar/Reanudar</button>
+            <br>
+            <label for="Tamaño">Tamaño de los Cuadrados:</label>
+            <input type="range" id="tamanoCuadraditos" min="5" max="50" step="5" value="20">
         </div>
         <script>
             // Declaro las variables iniciales
@@ -30,8 +33,13 @@
             const lienzo2 = document.getElementById("lienzo2");
             const contexto = lienzo.getContext("2d");
             const contexto2 = lienzo2.getContext("2d");
-            const botonInicioPausa = document.getElementById('botonInicioPausa');
-            let deteccionActiva = false;  // Variable para controlar el estado de la detección
+            
+            const botonInicioPausa = document.getElementById('botonInicioPausa')
+            let deteccionActiva = false
+            
+            const tamanoCuadraditosInput = document.getElementById('tamanoCuadraditos');
+            let tamanoCuadraditos = parseInt(tamanoCuadraditosInput.value);
+            
             contexto2.fillStyle = "rgba(255,255,255,0.01)"
             var cuadrosx = []
             var cuadrosy = []
@@ -53,7 +61,7 @@
             });
             
             function toggleDeteccion() {
-                deteccionActiva = !deteccionActiva;  // Invierte el estado al hacer clic
+                deteccionActiva = !deteccionActiva;  
 
                 if (deteccionActiva) {
                     // Inicia la detección
@@ -66,7 +74,10 @@
                     botonInicioPausa.textContent = 'Iniciar';
                 }
             }
+            tamanoCuadraditosInput.addEventListener('input', function () {
+                tamanoCuadraditos = parseInt(tamanoCuadraditosInput.value);
             
+            });
             navigator.mediaDevices.getUserMedia({video:true})
                 .then(function(flujo){
                     video.srcObject = flujo;
@@ -126,8 +137,8 @@
                             contexto2.strokeRect(
                                 pixelesnuevos[i].x,
                                 pixelesnuevos[i].y,
-                                paso,
-                                paso)
+                                tamanoCuadraditos,
+                                tamanoCuadraditos)
                             //console.log(cuadrosx[pixelesnuevos[i].x])
                             if(typeof(cuadrosx[pixelesnuevos[i].x]) == 'undefined'){
                                 cuadrosx[pixelesnuevos[i].x] = 1
